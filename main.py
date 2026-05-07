@@ -25,7 +25,7 @@ def create_company():
     if name == "e" or name == "esc" or name == "escape":
         gameloop()
 
-    investment = input("Balance: $" + str(balance) + "\nInvest Amount: ")
+    investment = input(f"Balance: ${balance:,} \nInvest Amount: ")
     if investment == "e" or investment == "esc" or investment == "escape":
         gameloop()
     else:
@@ -55,7 +55,7 @@ def edit_company(compnum):
         gameloop()
 
     elif pick == "1":
-        add = input("Balance: $" + str(balance) + "\nDeposist Amount: ")
+        add = input(f"Balance: ${balance:,} \nDeposist Amount: ")
         if add == "e" or add == "esc" or add == "escape":
             print("")
             gameloop()
@@ -65,7 +65,7 @@ def edit_company(compnum):
         companies[compnum - 1][1] += int(add)
         balance -= int(add)
     elif pick == "2":
-        sub = input("Balance: $" + str(balance) + "\nWithdraw Amount: ")
+        sub = input(f"Balance: ${balance:,}\nWithdraw Amount: ")
         if sub == "e" or sub == "esc" or sub == "escape":
             print("")
             gameloop()
@@ -87,7 +87,7 @@ def upgrades():
     global lucklevel
     global maxloans
 
-    print("\nBalance: $" + str(balance))
+    print(f"\nBalance: ${balance:,}")
     pick = input("Upgrades: \n1: Luck - " + str(lucklevel) + " - $" + str(lucklevel**2) + "\n")
     if pick == "e" or pick == "esc" or pick == "escape":
         print("")
@@ -116,7 +116,7 @@ def loanmenu():
         if len(loans) >= maxloans:
             print("ERROR: Loan Limit Reached")
             loanmenu()
-        pick = input("Loan Amounts: \n1: Tiny Loan    $50    15 days\n2: Small Loan   $100   30 days\n3: Mid Loan     $200   45 days\n4: Big Loan     $500   60 days\n5: Huge Loan    $1000  75 days\n")
+        pick = input("Loan Amounts: \n1: Tiny Loan    $50    15 days\n2: Small Loan   $100   30 days\n3: Mid Loan     $200   45 days\n4: Big Loan     $500   60 days\n5: Huge Loan    $1,000  75 days\n")
         if pick == "e" or pick == "esc" or pick == "escape":
             print("")
             gameloop()
@@ -139,7 +139,7 @@ def loanmenu():
         loanname = loans[(len(loans) - 1)][0]
         loandebt = loans[(len(loans) - 1)][1]
         loandays = loans[(len(loans) - 1)][2]
-        print(loanname + " Loan Created!\nYou will have to pay $" + str(loandebt) + " in " + str(loandays) + " days\n")
+        print(loanname + f" Loan Created!\nYou will have to pay ${loandebt:,} in " + str(loandays) + " days\n")
 
     elif pick == "2":
         print("Select a Loan to Pay:")
@@ -158,7 +158,7 @@ def loanmenu():
                     loanmenu()
                 balance -= debt
                 del loans[int(pick) - 1]
-                print("New Balance: $" + str(balance))
+                print(f"New Balance: ${balance:,}")
 
     elif pick == "3":
         if loans == []:
@@ -179,12 +179,11 @@ def end_day():
         investment = companies[company][1]
 
         newinvestment = round(investment*random.uniform(luckmin, luckmax), 2)
-        print(name + ": " + str(newinvestment))
+        print(name + f": {newinvestment:,}")
         companies[company][1] = newinvestment
 
     daycount += 1
-    result = pyfiglet.figlet_format("DAY " + str(daycount))
-    print(result)
+    print(pyfiglet.figlet_format(f"DAY {daycount:,}"))
 
     for loannum in range(len(loans)):
         loan = loans[loannum]
@@ -194,7 +193,7 @@ def end_day():
         elif loan[2] == 0:
             print("ALERT: You missed your due for a " + str(loan[0]) + " Loan. You've been charged $" + str(loan[1] * 1.25))
             balance -= loan[1] * 1.25
-            print("New Balance: $" + str(balance))
+            print(f"New Balance: ${balance:,}")
             del loans[loannum]
 
 def gameloop():
@@ -207,7 +206,7 @@ def gameloop():
     elif pick =="2":
         create_company()
     elif pick == "3":
-        print("\nBalance: $" + str(balance) + "\n")
+        print(f"\nBalance: ${balance:,}\n")
     elif pick == "4":
         print("")
         for info in range(len(companies)):
