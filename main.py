@@ -6,9 +6,18 @@ companies = []
 lucklevel = 1
 luckmin = (lucklevel/50) + .75
 luckmax = lucklevel * 1.5
+maxlucklevel = 10
+luckcost = (lucklevel**3) * lucklevel
 daycount = 0
 loans = []
-maxloans = 1
+loanlevel = 0
+maxloanlevel = 5
+loancost = 25
+loanoptions = ["1: Tiny Loan    $50      15 days",
+               "2: Small Loan   $100     30 days",
+               "3: Mid Loan     $200     45 days",
+               "4: Big Loan     $500     60 days", 
+               "5: Huge Loan    $1,000   75 days"]
 
 result = pyfiglet.figlet_format("DAY " + str(daycount))
 print(result)
@@ -85,20 +94,46 @@ def upgrades():
     global luckmin
     global luckmax
     global lucklevel
-    global maxloans
-
+    global loanlevel
+    global maxlucklevel
+    global luckcost
+    global maxloanlevel
+    global loancost
+    
     print(f"\nBalance: ${balance:,}")
-    pick = input("Upgrades: \n1: Luck - " + str(lucklevel) + " - $" + str(lucklevel**2) + "\n")
+    pick = input("Upgrades: \n1: Luck - " + str(lucklevel) + " - $" + str(luckcost) + "\n2: Loans - " + str(loanlevel) + " - $" + str(loancost) + "\n")
     if pick == "e" or pick == "esc" or pick == "escape":
         print("")
         gameloop()
     elif pick == "1":
-        if balance < lucklevel**2:
+        if lucklevel == "MAX" or lucklevel >= maxlucklevel:
+            print("ERROR: Max Luck Level Reached")
+            upgrades()
+        elif balance < luckcost:
             print("ERROR: Insufficient Funds")
             upgrades()
-        balance -= lucklevel**2
+
         lucklevel += 1
-        print("MAX: " + str(lucklevel * 1.5) + " MIN: " + str((lucklevel/50) + .75))
+        balance -= luckcost
+        luckcost = (lucklevel**3) * lucklevel
+        if lucklevel == maxlucklevel:
+            lucklevel = "MAX"
+            luckcost = "N/A"
+    
+    elif pick == "2":
+        if loanlevel == "MAX" or loanlevel >= maxloanlevel:
+            print("ERROR: Max Loan Level Reached")
+            upgrades()
+        elif balance < loancost:
+            print("ERROR: Insufficient Funds")
+            upgrades()
+        
+        loanlevel += 1
+        balance -= loancost
+        loancost = (loanlevel * 100)
+        if loanlevel == maxloanlevel:
+            loanlevel = "MAX"
+            loancost = "N/A"
 
     upgrades()
 
@@ -106,35 +141,44 @@ def loanmenu():
     global balance
     global daycount
     global loans
-    global maxloans
+    global loanlevel
+    global loanoptions
 
-    pick = input("\nLoan Options:\n1: Start Loan\n2: Pay a Loan\n3: See Current Loan\n")
+    pick = input("\nLoan Options:\n1: Start Loan\n2: Pay a Loan\n3: See Current Loan\n")    
     if pick == "e" or pick == "esc" or pick == "escape":
         print("")
         gameloop()
     elif pick == "1":
-        if len(loans) >= maxloans:
-            print("ERROR: Loan Limit Reached")
+        if len(loans) >= loanlevel:
+            print("ERROR: Selection Locked")
             loanmenu()
-        pick = input("Loan Amounts: \n1: Tiny Loan    $50    15 days\n2: Small Loan   $100   30 days\n3: Mid Loan     $200   45 days\n4: Big Loan     $500   60 days\n5: Huge Loan    $1,000  75 days\n")
+
+        print("\nLoan Amounts: ")
+        for option in range(loanlevel):
+            print(loanoptions[option])
+        pick = input()
+        
         if pick == "e" or pick == "esc" or pick == "escape":
             print("")
             gameloop()
         elif pick == "1":
             loans.append(["Tiny", 50, 15])
             balance += 50
-        elif pick == "2":
+        elif pick == "2" and loanlevel >= 2:
             loans.append(["Small", 100, 30])
             balance += 100
-        elif pick == "3":
+        elif pick == "3" and loanlevel >= 3:
             loans.append(["Mid", 200, 45])
             balance += 200
-        elif pick == "4":
+        elif pick == "4" and loanlevel >= 4:
             loans.append(["Big", 500, 60])
             balance += 500
-        elif pick == "5":
+        elif pick == "5" and loanlevel == "MAX":
             loans.append(["Huge", 1000, 75])
             balance += 1000
+        else:
+            print("ERROR: Invalid Selection")
+            loanmenu()
 
         loanname = loans[(len(loans) - 1)][0]
         loandebt = loans[(len(loans) - 1)][1]
@@ -149,16 +193,16 @@ def loanmenu():
         if pick == "e" or pick == "esc" or pick == "escape":
             print("")
             gameloop()
-        else:
-            debt = loans[int(pick) - 1][1]
-            confirm = input("Do you want to pay $" + str(debt) + "? (Y/N) ")
-            if confirm == "Y" or confirm == "y":
-                if balance < debt:
-                    print("ERROR: Insufficient Funds")
-                    loanmenu()
-                balance -= debt
-                del loans[int(pick) - 1]
-                print(f"New Balance: ${balance:,}")
+
+        debt = loans[int(pick) - 1][1]
+        confirm = input("Do you want to pay $" + str(debt) + "? (Y/N) ")
+        if confirm == "Y" or confirm == "y":
+            if balance < debt:
+                print("ERROR: Insufficient Funds")
+                loanmenu()
+            balance -= debt
+            del loans[int(pick) - 1]
+            print(f"New Balance: ${balance:,}")
 
     elif pick == "3":
         if loans == []:
@@ -216,8 +260,11 @@ def gameloop():
         print("\nSelect Company to Edit")
         for company in range(len(companies)):
             print(str(company + 1) + ": " + companies[company][0])
-        comppick = int(input())
-        edit_company(comppick)
+        comppick = input()
+        if comppick == "e" or comppick == "esc" or comppick == "escape":
+            print("")
+            gameloop()
+        edit_company(int(comppick))
     elif pick == "6":
         upgrades()
     elif pick == "7":
