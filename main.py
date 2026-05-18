@@ -4,7 +4,7 @@ import pyfiglet
 balance = 10
 companies = []
 lucklevel = 1
-luckmin = (lucklevel/50) + .75
+luckmin = (lucklevel/50) + .5
 luckmax = lucklevel * 1.5
 maxlucklevel = 10
 luckcost = (lucklevel**3) * lucklevel
@@ -218,11 +218,16 @@ def end_day():
     global daycount
     global loans
 
+    multiplier = 1
+    for company in companies:
+        multiplier += .01
+    print(multiplier)
+
     for company in range(len(companies)):
         name = companies[company][0]
         investment = companies[company][1]
 
-        newinvestment = round(investment*random.uniform(luckmin, luckmax), 2)
+        newinvestment = round(multiplier * (investment*random.uniform(luckmin, luckmax)), 2)
         print(name + f": {newinvestment:,}")
         companies[company][1] = newinvestment
 
